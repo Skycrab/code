@@ -1,9 +1,11 @@
 package websocket
 
 import (
+	// "encoding/binary"
 	"fmt"
 	"net/http"
 	"testing"
+	"time"
 )
 
 type MyHandler struct {
@@ -15,11 +17,18 @@ func (wd MyHandler) CheckOrigin(origin, host string) bool {
 
 func (wd MyHandler) OnOpen(ws *Websocket) {
 	fmt.Println("OnOpen")
-	ws.SendText([]byte("hello world from server"))
 }
 
 func (wd MyHandler) OnMessage(ws *Websocket, message []byte) {
 	fmt.Println("OnMessage:", string(message), len(message))
+	// 不知道为啥用的是小端
+	// v := [10]uint32{}
+	// j := 0
+	// for i := 0; i < len(message); i = i + 4 {
+	// 	v[j] = binary.LittleEndian.Uint32(message[i:])
+	// 	j++
+	// }
+	// fmt.Println(v)
 }
 
 func (wd MyHandler) OnClose(ws *Websocket, code uint16, reason []byte) {
@@ -39,6 +48,9 @@ func TestWebsocket(t *testing.T) {
 		if err != nil {
 			t.Fatal(err.Error())
 		}
+		time.AfterFunc(time.Second*5, func() {
+			ws.Close(0, []byte("kick"))
+		})
 		ws.Start()
 	})
 	fmt.Println("server start")
