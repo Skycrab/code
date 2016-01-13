@@ -1,0 +1,8 @@
+#!/bin/bash
+
+base=/var/opt/gitlab/git-data/repositories/bi/python.git/
+cd $base
+branch=$(find refs/heads -type f -printf '%T@ %p\n' | sort | tail -1 | cut -d ' ' -f 2)
+if [ "$branch" = "refs/heads/develop" ]; then
+    sudo env PATH=$PATH bash /root/deploy.sh test develop
+fi

@@ -1,0 +1,9 @@
+#!/usr/bin/python
+
+import sys
+import os
+
+old, new, ref = sys.stdin.readline().strip().split()
+
+if ref == "refs/heads/develop":
+    os.system("sudo env PATH=$PATH bash /root/deploy.sh test develop")

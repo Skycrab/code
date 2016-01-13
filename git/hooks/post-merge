@@ -1,0 +1,8 @@
+#!/bin/bash
+
+git log --pretty=oneline develop -1 | grep Merge | grep -q "into develop"
+
+if [ $? -eq 0 ];then
+    sudo env PATH=$PATH bash /root/deploy.sh test develop
+fi
+
