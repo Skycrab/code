@@ -16,7 +16,6 @@ reload(sys)
 sys.setdefaultencoding("utf8")
 
 # mysql配置,用于获取配置信息
-# HOST = "42.62.114.8"
 
 HOST = "192.168.3.26"
 DB = "BI"
