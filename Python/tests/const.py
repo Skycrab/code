@@ -1,0 +1,4 @@
+# coding=utf8
+
+ADMIN_DEFAULT_UID = 7
+DEFAULT_WAIT = 5
