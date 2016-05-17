@@ -127,7 +127,7 @@ class AssetDistribute(object):
             if dasset is None:  # 新文件
                 self.change[sfile] = sasset
             elif not sasset.same(dasset):  # 指纹不一样
-                self.discard.add(sasset.name)
+                self.discard.add(dasset.name)  # 丢弃旧版本
                 self.change[sfile] = sasset
             else:  # 指纹一样
                 self.unchange[sfile] = dasset
@@ -178,7 +178,14 @@ class AssetDistribute(object):
 
             df.writelines(rows)
 
-    def gen_discard(self):
+    def gen_change_file(self):
+        """记录没用文件"""
+        change = os.path.join(self.out, "change.txt")
+        rows = "\n".join(self.change.keys())
+        with open(change, 'w') as f:
+            f.write(rows)
+
+    def gen_discard_file(self):
         """记录没用文件"""
         discard = os.path.join(self.out, "discard.txt")
         rows = "\n".join(self.discard)
@@ -190,7 +197,8 @@ class AssetDistribute(object):
         self.compare()
         self.gen_static()
         self.gen_template()
-        self.gen_discard()
+        self.gen_change_file()
+        self.gen_discard_file()
 
 
 def test():
