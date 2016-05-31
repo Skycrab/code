@@ -1,0 +1,38 @@
+
+typedef struct {
+    PyObject_HEAD
+    int co_argcount;        /* 位置参数个数 */
+    int co_nlocals;         /* 局部变量个数 */
+    int co_stacksize;       /* 栈大小 */
+    int co_flags;
+    PyObject *co_code;      /* 字节码指令序列 */
+    PyObject *co_consts;    /* 所有常量集合 */
+    PyObject *co_names;     /* 所有符号名称集合 */
+    PyObject *co_varnames;  /* 局部变量名称集合 */
+    PyObject *co_freevars;  /* 闭包用的的变量名集合 */
+    PyObject *co_cellvars;  /* 内部嵌套函数引用的变量名集合 */
+    /* The rest doesn’t count for hash/cmp */
+    PyObject *co_filename;  /* 代码所在文件名 */
+    PyObject *co_name;      /* 模块名|函数名|类名 */
+    int co_firstlineno;     /* 代码块在文件中的起始行号 */
+    PyObject *co_lnotab;    /* 字节码指令和行号的对应关系 */
+    void *co_zombieframe;   /* for optimization only (see frameobject.c) */
+} PyCodeObject;
+
+
+def test():
+    a = 100
+    def t():
+        return a+1
+    return t
+t=test()
+print(t())
+
+
+LOAD_CONST               0    => code.co_consts[0]压栈
+MAKE_FUNCTION            0    => 函数参数个数(先压参数后压函数code)
+STORE_NAME               0    => name=code.co_names,　f_locals[name]=f.pop()
+LOAD_NAME                0    => name=code.co_names f_locals -> f_globals -> f_builtins(lgb)压栈
+
+STORE_DEREF              0    => frame.cells[name].set(self.pop())(闭包)
+LOAD_CLOSURE             0    => frame.cells[name]压栈
