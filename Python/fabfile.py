@@ -18,9 +18,9 @@ sys.setdefaultencoding("utf8")
 # mysql配置,用于获取配置信息
 
 HOST = "192.168.3.26"
-DB = "BI"
-USER = "BIsystem"
-PASSWORED = "SIDFgd_2015"
+DB = ""
+USER = ""
+PASSWORED = ""
 
 # fabric配置
 ENV_USER = "haibo"
