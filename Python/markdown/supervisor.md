@@ -29,6 +29,10 @@ autorestart=true
 redirect_stderr=true
 ```
 
+如果需要环境变量，可添加
+
+environment=stage="$CURRENT",host="$DEPLOY_UNIQUE_NGINX_SERVER_NAME",port="$DEPLOY_SERVER_PORT"
+
 此配置文件为 supervisor 监控 gunicorn 进程的配置文件
 
 
