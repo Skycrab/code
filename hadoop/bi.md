@@ -191,6 +191,45 @@ add `is_operating_vehicle_name` varchar(50) NOT NULL DEFAULT '' COMMENT '使用�
 
 #小技巧
 
+增量表根据create_time动态分区
+
+```
+
+-- SET hive.exec.max.dynamic.partitions.pernode = 100;
+-- 在每个执行MR的节点上，最大可以创建多少个动态分区,默认值100
+
+-- SET hive.exec.max.dynamic.partitions=1000;
+-- 在所有执行MR的节点上，最大一共可以创建多少个动态分区,默认值1000
+
+hive -e "
+
+SET hive.exec.dynamic.partition=true;
+SET hive.exec.dynamic.partition.mode=nonstrict;
+SET hive.support.quoted.identifiers=none;
+
+
+use manhattan_test;
+insert overwrite table drip_loan_loan_repay_record PARTITION (year,month,day)
+
+select
+    `(day)?+.+`,year(create_time) as year, lpad(month(create_time),2,0) as month , lpad(day(create_time),2,0) as day
+from
+(
+    select
+        `(month)?+.+`
+    from
+    (
+        SELECT
+            `(year)?+.+`
+        from manhattan_test.drip_loan_loan_repay_record where concat(year,month,day)='20170121' and create_time<'2017-01-20 23:59:59'
+    )t1
+)t2;
+
+"
+
+
+```
+
 全量表根据create_time分发分区
 
 ```
