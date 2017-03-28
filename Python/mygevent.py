@@ -14,6 +14,7 @@ class Sock(object):
         else:
             sock = socket_
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        # 设置非阻塞
         sock.setblocking(0)
         self.sock = sock
 
@@ -33,7 +34,9 @@ class Sock(object):
                 print(e)
                 if e.args[0] != errno.EAGAIN:
                     raise
+            # switch是回调函数，当loop回调时会再次回到这里
             switch = rawgreenlet.getcurrent().switch
+            # 注册读事件，当sock可读时调用回调函数
             ioloop.wait(self.sock, switch, ioloop.READ)
 
         return Sock(client_sock), address
