@@ -29,3 +29,55 @@ public class AppTest {
 
 ```
 
+2.json序列化/反序列化typereference
+
+fastJson
+```
+HttpData<Rule> data = JSON.parseObject(ret, new TypeReference<HttpData<Rule>>() {})
+```
+
+Jackson
+```
+String jsonString="[{'id':'1'},{'id':'2'}]";
+ObjectMapper mapper = new ObjectMapper();
+List<Bean> beanList = mapper.readValue(jsonString, new TypeReference<List<Bean>>() {});
+```
+
+3.单例模式
+```
+import java.util.Properties;
+
+/**
+ * Created by didi on 17/6/7.
+ */
+public class Conf {
+    private static Properties prop = new Properties();
+    private static class Holder {
+        private static final Conf INSTANCE = new Conf();
+    }
+    private Conf (){
+        try {
+            prop.load(Conf.class.getResourceAsStream("/application.properties"));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    public static final Conf getInstance() {
+        return Holder.INSTANCE;
+    }
+    public String get(String key){
+        return prop.getProperty(key);
+    }
+}
+
+```
+4.Fatal error compiling: 无效的目标发行版: 1.8 ->
+
+Perference->Build->Maven->Runner->JRE -> 1.8
+
+Project Setting->Modules->1.8
+
+
+
+
+
