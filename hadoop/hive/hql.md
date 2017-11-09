@@ -4,6 +4,9 @@
 alter table opph_order_jdb_policy_kpi
 add columns (`spu_id` int COMMENT 'spu_id') CASCADE;
 ```
+```
+desc formatted white_list_test partition (year='2017',month='07',day='')
+```
 
 ```
 REATE EXTERNAL TABLE `sign_bill_funnel_transfor`(
@@ -41,7 +44,7 @@ STORED AS INPUTFORMAT
 OUTPUTFORMAT
   'org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat'
 LOCATION
-  'hdfs://mycluster-tj/user/fbi/manhattan_dm/sign_bill_funnel_transfor'
+  'hdfs://sign_bill_funnel_transfor'
 TBLPROPERTIES (
   'LEVEL'='1',
   'TTL'='60')
@@ -81,7 +84,7 @@ STORED AS INPUTFORMAT
 OUTPUTFORMAT
   'org.autonavi.udf.CustomHiveOutputFormat'
 LOCATION
-  'hdfs://mycluster-tj/user/fbi/manhattan_dm/opph_order_jdb_policy_kpi'
+  'hdfs://opph_order_jdb_policy_kpi'
 TBLPROPERTIES (
   'LEVEL'='1',
   'TTL'='180',
@@ -90,3 +93,45 @@ TBLPROPERTIES (
   'transient_lastDdlTime'='1509508546')
 ```
 
+###orc压缩
+新建orc表
+```
+USE xxx_ods;
+CREATE EXTERNAL TABLE tmp_orc LIKE tmp;
+ALTER TABLE tmp_orc SET FILEFORMAT ORC;
+ALTER TABLE tmp_orc SET LOCATION 'hdfs://tmp_orc';
+```
+创建目录,增加分区
+```
+hadoop fs -mkdir -p /user/xiaoju/data/bi/beatles_ods/beatles_strategy_hive_single_route_rank_tmp_orc/2016/06/19/00
+
+use xxx_ods;
+alter table tmp_orc add if not exists partition(year='2016',month='06',day='19',hour='00') location '/tmp_orc/2016/06/19/00';
+```
+
+插入数据
+```
+set hive.exec.dynamic.partition=true;
+set hive.exec.dynamic.partition.mode=nostrict;
+set mapreduce.job.queuename=root.jichupingtaibu-dashujujiagoubu.offline;
+set hive.exec.max.created.files=1000000;
+set hive.exec.max.dynamic.partitions=1000;
+set hive.exec.max.dynamic.partitions.pernode=1000;
+set mapreduce.map.memory.mb=4096;
+set mapreduce.map.java.opts=-Xmx3072m;
+set mapreduce.reduce.java.opts=-Xmx6144m;
+set mapreduce.map.memory.mb=4096;
+set mapreduce.reduce.memory.mb=8192;
+set yarn.scheduler.minimum-allocation-mb=4096;
+set yarn.scheduler.maximum-allocation-mb=5120;
+
+USE xx_ods;
+INSERT OVERWRITE TABLE tmp_orc PARTITION(year,month,day,hour)
+SELECT * FROM tmp where concat(year,month,day,hour) between '2016061900' and '2016062023' DISTRIBUTE BY rand();
+
+```
+```
+ALTER TABLE manhattan_dw.dwd_fatman_quotation_errmessage_category SET FILEFORMAT ORC;
+hadoop fs -chown -R dw_online:route_rank /route_rank
+
+```
