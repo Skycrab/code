@@ -131,6 +131,7 @@ SELECT * FROM tmp where concat(year,month,day,hour) between '2016061900' and '20
 
 ```
 ```
+ALTER TABLE dwd_fatman_quotation_errmessage_category partition(year='2017',month='01',day='31') SET FILEFORMAT ORC;
 ALTER TABLE manhattan_dw.dwd_fatman_quotation_errmessage_category SET FILEFORMAT ORC;
 hadoop fs -chown -R dw_online:route_rank /route_rank
 
