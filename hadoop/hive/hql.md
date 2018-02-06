@@ -103,7 +103,7 @@ ALTER TABLE tmp_orc SET LOCATION 'hdfs://tmp_orc';
 ```
 创建目录,增加分区
 ```
-hadoop fs -mkdir -p /user/xiaoju/data/bi/beatles_ods/beatles_strategy_hive_single_route_rank_tmp_orc/2016/06/19/00
+hadoop fs -mkdir -p /beatles_strategy_hive_single_route_rank_tmp_orc/2016/06/19/00
 
 use xxx_ods;
 alter table tmp_orc add if not exists partition(year='2016',month='06',day='19',hour='00') location '/tmp_orc/2016/06/19/00';
@@ -132,7 +132,7 @@ SELECT * FROM tmp where concat(year,month,day,hour) between '2016061900' and '20
 ```
 ```
 ALTER TABLE dwd_fatman_quotation_errmessage_category partition(year='2017',month='01',day='31') SET FILEFORMAT ORC;
-ALTER TABLE manhattan_dw.dwd_fatman_quotation_errmessage_category SET FILEFORMAT ORC;
+ALTER TABLE dwd_fatman_quotation_errmessage_category SET FILEFORMAT ORC;
 hadoop fs -chown -R dw_online:route_rank /route_rank
 
 ```
