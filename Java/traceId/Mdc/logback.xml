@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<substitutionProperty name="log.base" value="../logs/furion-api/furion-api" />
+
+	<jmxConfigurator />
+	<contextListener class="com.ofpay.logback.TtlMdcListener"/>
+
+
+	<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<pattern>
+				%date [%thread] traceId[%X{trace_id}] %-5level %logger{80} - %msg%n
+			</pattern>
+		</layout>
+	</appender>
+
+	<appender name="logfile"
+			  class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>${log.base}.log</File>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>
+				${log.base}.log.%d{yyyyMMdd}
+			</FileNamePattern>
+		</rollingPolicy>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<pattern>
+				[%-4level][%d{"yyyy-MM-dd'T'HH:mm:ss,SSSZ"}][%thread %logger{80}] traceId[%X{trace_id}] %msg%n
+			</pattern>
+		</layout>
+	</appender>
+
+	<appender name="consumer"
+			  class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>../logs/consumer/consumer.log</File>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>
+				../logs/consumer/consumer.log.%d{yyyyMMdd}
+			</FileNamePattern>
+		</rollingPolicy>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<pattern>
+				[%-4level][%d{"yyyy-MM-dd'T'HH:mm:ss,SSSZ"}][%thread %logger{80}] traceId[%X{trace_id}] %msg%n
+			</pattern>
+		</layout>
+	</appender>
+
+	<logger name="consumer" additivity="false">
+		<level value="DEBUG" />
+		<appender-ref ref="consumer" />
+	</logger>
+
+	<root>
+		<level value="INFO" />
+		<appender-ref ref="stdout" />
+		<appender-ref ref="logfile" />
+	</root>
+</configuration>
+
