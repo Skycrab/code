@@ -1,4 +1,4 @@
 # code
 talk is cheap show me the code
 
-C++/Python/Lua/Go
+Java/Scala/Python/Lua/Go/SQL
