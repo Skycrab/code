@@ -5,6 +5,7 @@
 ## profile
 
 applicaton.properties: spring.profiles.active=@activatedProperties@
+
 application-dev.yaml/application-online.yaml
 
 ## 入口
@@ -44,7 +45,7 @@ class Monitor extends CommandLineRunner with Logging {
 ## 详情
 
 scala bean定义用BeanProperty
-```
+```scala
 @ConfigurationProperties(prefix = "notify.sms")
 @Component
 class SmsConfig extends Logging {
@@ -54,7 +55,7 @@ class SmsConfig extends Logging {
 ```
 
 当所有bean都加载完
-```
+```scala
 @Component
 class SourceServiceFactory extends ApplicationListener[ContextRefreshedEvent] with Logging {
   private var sourceMap: Map[String, SourceService] = _
@@ -72,11 +73,11 @@ class SourceServiceFactory extends ApplicationListener[ContextRefreshedEvent] wi
     sourceMap.getOrElse(name, throw new MonitorException(s"无${name}数据源，可用类型${sourceMap.keys.toList}"))
   }
 }
-``
+```
 ## 测试
 
 使用thrown
-```
+```scala
 class InputTest {
   val _thrown = ExpectedException.none
   @Rule
@@ -91,7 +92,7 @@ class InputTest {
 ```
 
 使用MockBean,MockIo
-```
+```scala
 @RunWith(classOf[SpringRunner])
 @SpringBootTest
 class FeaturePsiDayImplTest {
@@ -117,10 +118,10 @@ class FeaturePsiDayImplTest {
 
 ## spark log4j
 
-```
+```shell
 spark-submit --class xxx.BootApplication --queue xxx --driver-java-options "-Dlog4j.configuration=file:log4j.properties" --files log4j.properties,application-online.yaml xxx.jar $*
 ```
-```
+```xml
 log4j.rootLogger=error, console
 
 log4j.appender.console=org.apache.log4j.ConsoleAppender
@@ -141,7 +142,7 @@ log4j.appender.app.layout.ConversionPattern=%d{yy/MM/dd HH:mm:ss} %p %c{1}: %m%n
 ## 使用drools
 pom.xml一定注意要append kie.conf
 
-``
+```scala
 @Configuration
 class DroolsConfig {
   @Bean
@@ -153,7 +154,7 @@ class DroolsConfig {
 ```
 
 META-INF/kmodule.xml
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <kmodule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://www.drools.org/xsd/kmodule">
@@ -165,7 +166,7 @@ META-INF/kmodule.xml
 ```
 
 drl定义
-```
+```java
 package com.mnt.feature.monitor.rules.psi;
 global Notify notify;
 
@@ -177,7 +178,7 @@ rule "psi > 0.2"
 end
 ```
 
-```
+```scala
 @Service
 class PsiColumnListener extends InitializingBean {
 
