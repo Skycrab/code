@@ -74,6 +74,116 @@ class SourceServiceFactory extends ApplicationListener[ContextRefreshedEvent] wi
   }
 }
 ```
+
+针对一个接口有多个实现的，可以根据名字抽象出通用的具名工场
+
+```
+trait HasName {
+  def name: String
+
+}
+
+
+import com.mnt.feature.monitor.bean.MonitorException
+import org.apache.spark.internal.Logging
+import org.springframework.context.ApplicationListener
+import org.springframework.context.event.ContextRefreshedEvent
+
+import scala.collection.JavaConversions.mapAsScalaMap
+import scala.reflect._
+
+/**
+  * Created by yihaibo on 2019-12-24.
+  *
+  * 当所有bean加载完执行
+  */
+class NamedFactory[T <: HasName : ClassTag] extends ApplicationListener[ContextRefreshedEvent] with Logging {
+  private var nameMap: Map[String, T] = _
+
+  override def onApplicationEvent(e: ContextRefreshedEvent): Unit = {
+    if(e.getApplicationContext.getParent == null) {
+      val context = e.getApplicationContext
+      val beans = context.getBeansOfType(classTag[T].runtimeClass.asInstanceOf[Class[T]])
+      nameMap = beans.map{case (_, v) => (v.name, v)}.toMap
+    }
+  }
+
+  def getByName(name: String): T = {
+    nameMap.getOrElse(name, throw new MonitorException(s"无${name}服务，可用${nameMap.keys.toList}"))
+  }
+
+}
+
+
+trait ProcessStrategy extends HasName{
+  /**
+    * 处置方法
+    * @param columnPsi
+    * @param threshold
+    */
+  def process(columnPsi: ColumnPsi, threshold: Double): Unit
+
+}
+
+
+@Component
+class ProcessStrategyNamedFactory extends NamedFactory[ProcessStrategy]
+
+```
+
+有的时候希望加载用户提供的配置文件，可用PropertySource解决，注意PropertySource默认只支持xml, 通过factory支持yaml
+
+```
+/**
+ * Created by yihaibo on 2019-12-23.
+  *
+  * System.setProperty("psi.config", "test");
+  *
+  * java -jar -Dpsi.config="/home/mkyon/test" example.jar
+  *
+  * spark-submit: --driver-java-options "-Dlog4j.configuration=file:log4j.properties -Dpsi.config=file:psiConfig.yaml"
+  *
+  *
+ */
+@Configuration
+@PropertySource(value = Array("${psi.config}"), factory = classOf[ResourceFactory])
+@ConfigurationProperties(prefix = "monitor")
+class PsiMonitorConfig extends InitializingBean with Logging {
+
+  /**
+    * 模式，eager，lazy
+    */
+  @BeanProperty
+  var mode: String = _
+}
+
+
+
+import org.springframework.beans.factory.config.YamlPropertiesFactoryBean
+import org.springframework.core.env.{PropertiesPropertySource, PropertySource}
+import org.springframework.core.io.support.{DefaultPropertySourceFactory, EncodedResource}
+
+class ResourceFactory extends DefaultPropertySourceFactory {
+
+  override def createPropertySource(name: String, resource: EncodedResource): PropertySource[_] = {
+    val sourceName = if (name == null) resource.getResource.getFilename else name
+    assert(sourceName != null)
+    if (sourceName.endsWith(".yml") || sourceName.endsWith(".yaml")) {
+      val factory = new YamlPropertiesFactoryBean
+      factory.setResources(resource.getResource)
+      factory.afterPropertiesSet()
+      val properties = factory.getObject
+      assert(properties != null)
+      return new PropertiesPropertySource(sourceName, properties)
+    }
+    super.createPropertySource(name, resource)
+  }
+}
+
+```
+
+
+
 ## 测试
 
 使用thrown
