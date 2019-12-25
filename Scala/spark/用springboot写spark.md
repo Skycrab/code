@@ -77,7 +77,7 @@ class SourceServiceFactory extends ApplicationListener[ContextRefreshedEvent] wi
 
 针对一个接口有多个实现的，可以根据名字抽象出通用的具名工场
 
-```
+```scala
 trait HasName {
   def name: String
 
@@ -133,7 +133,7 @@ class ProcessStrategyNamedFactory extends NamedFactory[ProcessStrategy]
 
 有的时候希望加载用户提供的配置文件，可用PropertySource解决，注意PropertySource默认只支持xml, 通过factory支持yaml
 
-```
+```scala
 /**
  * Created by yihaibo on 2019-12-23.
   *
